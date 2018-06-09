@@ -2,9 +2,14 @@
 // codeText = code.textAnnotations[0].description;
 // skewer.log(codeText);
 
+const replaceBrace = (text) => {
+    return text.replace(/\([ ]*/,"(").replace(/\)[ ]*/,")");
+};
+
 const loadCode = (codeText) => {
+    let newCode = replaceBrace(codeText);
     block = document.getElementById("code");
-    block.textContent = codeText;
+    block.textContent = newCode;
     refreshHighlight();
 };
 
@@ -22,8 +27,9 @@ const updateResult = (result) => {
 
 const runCode = (code) => {
     if (code) {
+        $("#canvasContainer").hide();
         $("#errorMsg").hide();
-        execScheme(code, updateResult);
+        execScheme(code, handleResult);
     }
 };
 
