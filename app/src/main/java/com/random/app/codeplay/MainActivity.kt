@@ -18,6 +18,7 @@ import android.os.Build
 import android.widget.Toast
 import java.nio.file.Files.size
 import android.app.Activity
+import android.app.ProgressDialog
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.ClipData
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var handler:Handler
 
     var PICK_IMAGE_MULTIPLE = 1
+    private lateinit var progressDialog: ProgressDialog
 
     lateinit var codePlayDB:CodePlayDB
 
@@ -85,7 +87,8 @@ class MainActivity : AppCompatActivity() {
                 CodePlayDB::class.java, "codeplaydb")
         .fallbackToDestructiveMigration().build()
         initWebView()
-
+        progressDialog = ProgressDialog(this)
+        progressDialog.setTitle("Please wait")
 //        handler = Handler()
     }
 
@@ -216,6 +219,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayCode(code: String) {
+        progressDialog.dismiss()
         val url = "javascript:loadCode('$code');"
         codeView.loadUrl(url)
 
@@ -223,6 +227,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun processImageFromMSFTAzure(imageFile:File) {
 
+        progressDialog.setMessage("Loading image..")
+        progressDialog.show()
 
         val client  = OkHttpClient()
 
@@ -250,6 +256,7 @@ class MainActivity : AppCompatActivity() {
 
                         if(response?.code() == 202)
                         {
+                            runOnUiThread { progressDialog.setMessage("Processing image..") }
                             Handler(Looper.getMainLooper()).postDelayed({
                                 var request = Request.Builder()
                                         .url(response.headers().get("Operation-Location"))
