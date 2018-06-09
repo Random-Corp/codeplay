@@ -20,7 +20,7 @@ public interface NetworkService
     @POST("/vision/v2.0/recognizeText?mode=Handwritten")
     @Multipart
     @Headers({"Content-Type:multipart/form-data","Ocp-Apim-Subscription-Key:***REMOVED***"})
-    Call<Response<ResponseBody>> azurePostImage(@Part MultipartBody.Part imageRequestBody);
+    Call<Response<ResponseBody>> azurePostImage(@Body RequestBody requestBody);
 
 
     @GET

@@ -44,6 +44,7 @@ import kotlin.math.log
 
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Rect
+import com.google.android.gms.common.util.IOUtils
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -53,7 +54,6 @@ import java.io.File
 import java.io.FileInputStream
 
 
-
 class MainActivity : AppCompatActivity() {
 
     private val PERMISSION_WRITE_REQUEST = 1
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     private val RC_TAKE_PHOTO = 2
     private lateinit var fabAddGallery: FloatingActionButton
     private lateinit var fabAddCamera: FloatingActionButton
-    private val  INDEX_FILE = "file:///android_asset/index.html"
+    private val INDEX_FILE = "file:///android_asset/index.html"
 
     var PICK_IMAGE_MULTIPLE = 1
 
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun makeRequest() {
         ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA),
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
                 PERMISSION_WRITE_REQUEST)
     }
 
@@ -113,10 +113,10 @@ class MainActivity : AppCompatActivity() {
 
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
 
-                    d("Main","Permission has been denied by user")
+                    d("Main", "Permission has been denied by user")
                 } else {
-                    d( "Main","Permission has been granted by user")
-                    startActivity(Intent(this,MainActivity::class.java))
+                    d("Main", "Permission has been granted by user")
+                    startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
             }
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initFam() {
-        fbAdd.setOnClickListener { EasyImage.openChooserWithDocuments(this,"Choose from",PICK_IMAGE_MULTIPLE) }
+        fbAdd.setOnClickListener { EasyImage.openChooserWithDocuments(this, "Choose from", PICK_IMAGE_MULTIPLE) }
 //        famAdd.setOnFloatingActionsMenuUpdateListener(object : FloatingActionsMenu.OnFloatingActionsMenuUpdateListener {
 //            override fun onMenuExpanded() {
 //                rlFamBg.visibility = View.VISIBLE
@@ -180,11 +180,12 @@ class MainActivity : AppCompatActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
 
-
-
-        EasyImage.handleActivityResult(requestCode,resultCode,data,this,object :DefaultCallback (){
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
             override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
-                processImageFromMSFTAzure(imageFile!!)
+
+//                val inputStream = FileInputStream(imageFile)
+                val byteArray = IOUtils.toByteArray(imageFile)
+                processImageFromMSFTAzure(byteArray)
 
 //                val mImageUri = imageFile?.pa
 ////                    val decoder = BitmapRegionDecoder.newInstance(mImageUri.toString(), false)
@@ -203,9 +204,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun processBitmap(bitmap: Bitmap) {
-        Log.d("Result"," uri :${bitmap.height}")
+        Log.d("Result", " uri :${bitmap.height}")
 
         val visionImage = FirebaseVisionImage.fromBitmap(bitmap)
 
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                     for (block in it.getBlocks()) {
                         fullString = fullString + block.text + " \n "
                     }
-                    Log.d("full",fullString)
+                    Log.d("full", fullString)
                 }
                 .addOnFailureListener { }
 
@@ -237,14 +237,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun processImageFromMSFTAzure(file:File)
-    {
+    private fun processImageFromMSFTAzure(data: ByteArray) {
         //pass it like this
 
-        var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+//        var requestFile = RequestBody.create(MediaType.parse("image/*"), file);
 
         // MultipartBody.Part is used to send also the actual file name
-        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+//        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 //        var imageBody = RequestBody.create(MediaType.parse("image"), file);
 //        val `in` = FileInputStream(File(file.getPath()))
 //        val buf: ByteArray
@@ -252,36 +251,40 @@ class MainActivity : AppCompatActivity() {
 //        while (`in`.read(buf) !== -1);
 //        val requestBody = RequestBody
 //                .create(MediaType.parse("application/octet-stream"), buf)
+        val requestBody = RequestBody
+                .create(MediaType.parse("application/octet-stream"), data)
+
+
 
         val retrofit = Retrofit.Builder()
                 .baseUrl("https://westcentralus.api.cognitive.microsoft.com")
-                                .addConverterFactory(GsonConverterFactory.create())
-                                .build()
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
 
         var networkService = retrofit.create(NetworkService::class.java)
 
-        val postImage = networkService.azurePostImage(body)
+        val postImage = networkService.azurePostImage(requestBody)
 //        val response = postImage.execute()
         postImage.enqueue(object : Callback<Response<ResponseBody>> {
             override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
             }
 
             override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-                if(response?.code() == 202) {
+                if (response?.code() == 202) {
                     Handler().postDelayed({
 
                         val getImageTextDetails = networkService.azureGetImageText(response.headers().get("Operation-Location"))
-                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>>{
+                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>> {
                             override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
 
                             }
 
                             override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-                                Log.d("result","")
+                                Log.d("result", "")
                             }
 
                         })
-                    },10000)
+                    }, 10000)
                 }
             }
 
