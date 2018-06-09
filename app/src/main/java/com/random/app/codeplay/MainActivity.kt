@@ -213,6 +213,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
+        WebView.setWebContentsDebuggingEnabled(true)
         codeView.settings.javaScriptEnabled = true
         codeView.loadUrl(INDEX_FILE)
         codeView.addJavascriptInterface(this, "Android")
@@ -318,6 +319,11 @@ class MainActivity : AppCompatActivity() {
         val list = codePlayDB.getSnippetDao().getAllSnippets()
         list?.let { return gson.toJson(it) }
         return ""
+    }
+
+    @JavascriptInterface
+    fun deleteSnippets() {
+        codePlayDB.getSnippetDao().nuke()
     }
 
 
