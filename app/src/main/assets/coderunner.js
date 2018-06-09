@@ -1,5 +1,16 @@
-var schemeInterpretter = new BiwaScheme.Interpreter();
+const errorHandler = (e) => {
+    console.log("Error: "+e.message);
+    $("#errorMsg").text(e.message);
+    $("#errorMsg").show();
+    $("#result").hide();
+};
 
-function execScheme(code, callback) {
-    schemeInterpretter.evaluate(code, callback);
-}
+var intp = new BiwaScheme.Interpreter(errorHandler);
+
+const createInterpretter = () => {
+    intp = new BiwaScheme.Interpreter(errorHandler);
+};
+
+const execScheme = (code, callback) => {
+    intp.evaluate(code, callback);
+};

@@ -14,12 +14,14 @@ const refreshHighlight = () => {
 };
 
 const updateResult = (result) => {
+    $("#result").show();
     $("#result").text(result);
 };
 
 const runCode = () => {
     code = $("#code").text().trim();
     if (code) {
+        $("#errorMsg").hide();
         execScheme(code, updateResult);
     }
 };

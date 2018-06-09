@@ -57,6 +57,12 @@
 
       </form>
 
+
+      <div class="alert alert-danger" id="errorMsg">
+      </div>
+
+      <!-- <h5 class="alert alert-danger" style="font" id="errorMsg"></h3> -->
+
       <h3 class="form-control-static" id="result"></h3>
     </div>
 
@@ -64,6 +70,7 @@
       $(document).ready(() => {
           hljs.initHighlightingOnLoad();
           hideEdit();
+          $("#errorMsg").hide();
       });
     </script>
   </body>
