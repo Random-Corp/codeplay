@@ -12,7 +12,7 @@ import android.arch.persistence.room.Query
 abstract class SnippetDao {
 
     @Query("Select * From Snippet")
-    abstract fun getAllSnippets(): List<Snippet>
+    abstract fun getAllSnippets(): List<Snippet>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveSnippet(snippet: Snippet): Long
