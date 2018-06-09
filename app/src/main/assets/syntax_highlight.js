@@ -22,8 +22,9 @@ const updateResult = (result) => {
 
 const runCode = (code) => {
     if (code) {
+        $("#canvasContainer").hide();
         $("#errorMsg").hide();
-        execScheme(code, updateResult);
+        execScheme(code, handleResult);
     }
 };
 

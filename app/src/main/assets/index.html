@@ -22,6 +22,9 @@
     <script src="biwascheme.js"></script>
     <script src="coderunner.js"></script>
 
+    <!-- scheme files -->
+    <!-- <script id="basic-functions" src="scheme_utils.scm" type="text/scheme"></script> -->
+
     <style type="text/css">
       .hljs{
           font-size: 1.25em;
@@ -68,9 +71,20 @@
       <div class="alert alert-danger" id="errorMsg">
       </div>
 
-      <!-- <h5 class="alert alert-danger" style="font" id="errorMsg"></h3> -->
-
       <h3 class="form-control-static" id="result"></h3>
+
+
+      <div id="canvasContainer">
+        <table border=1><tr><td>
+              <div id="canvas-container">
+                <canvas height="384" id="canvassample">
+                  This browser doesn't support 'canvas'. Look on other browser, or install '<a href="http://excanvas.sourceforge.net/">excanvas.js</a>'.
+                </canvas>
+              </div>
+        </td></tr></table>
+      </div>
+
+
     </div>
 
     <script>
@@ -79,13 +93,9 @@
           hljs.initHighlightingOnLoad();
           hideEdit();
           $("#errorMsg").hide();
+          $("#canvasContainer").hide();
       });
 
-
-      const runEditorCode = () => {
-          code = $("#code").text().trim();
-          runCode(code);
-      }
 
       $('#replBox').on("keypress", (e) => {
           if (e.keyCode == 13) {
@@ -95,6 +105,49 @@
           }
       });
 
-    </script>
+      const runEditorCode = () => {
+          code = $("#code").text().trim();
+
+          clear_canvas();
+          runCode(code);
+          // draw();
+      }
+
+      const handleResult = (result) => {
+          const type = typeof(result);
+          console.log("Object type: "+type);
+
+
+          if (type === 'number' || type === 'string') {
+              // console.log("Value: "+type);
+          } else {
+              $("#canvasContainer").show();
+              // draw(result);
+          }
+
+          updateResult(result);
+      }
+
+
+      // const draw = (source) => {
+      //     try {
+      //         $("#bs-console").empty();
+      //         clear_canvas();
+      //         var res = intp.evaluate("(let1 f (begin " + source + ") (if (procedure? f) (begin ($save-ctx) (f *frame*) ($restore-ctx)) (print f)))");
+      //     } catch(e) {
+      //         alert(e);
+      //     }
+      // };
+
+      function clear_canvas() {
+          var ctx = $("#canvassample")[0].getContext('2d');
+          ctx.clearRect(0, 0, 384, 384);
+      }
+
+      function sample(name) {
+          var code = get_code_block(name);
+          $("#code").val(code);
+      }
+      </script>
   </body>
 </html>
