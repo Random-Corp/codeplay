@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/v3.0.0/mini-default.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/solarized-light.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="syntax_highlight.js"></script>
+    <script src="biwascheme.js"></script>
+    <script src="coderunner.js"></script>
+
+    <style type="text/css">
+      .hljs{
+          font-size: 1.25em;
+      }
+    </style>
+
+    <title>Codeplay</title>
+  </head>
+
+  <body>
+
+    <pre>
+      <code id="code" class="scheme"></code>
+    </pre>
+
+
+    <div class="row">
+      <textarea id="editCode" spellcheck="false" style="width: 90%; min-height: 100px;">
+      </textarea>
+    </div>
+
+
+    <input type="button" value="Run" onclick="runCode();" />
+    <input type="button" value="Edit" id="editButton"  onclick="editCode();" />
+    <input type="button" value="Done" id="doneButton" onclick="updateCode();" />
+
+    <p>=></p>
+    <h3 id="result"></h3>
+
+
+    <script>
+      $(document).ready(() => {
+          hljs.initHighlightingOnLoad();
+          hideEdit();
+      });
+    </script>
+  </body>
+</html>
