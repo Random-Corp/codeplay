@@ -47,6 +47,7 @@ import kotlin.math.log
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Rect
 import android.webkit.JavascriptInterface
+import android.webkit.WebView
 import com.google.android.gms.common.util.IOUtils
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -235,6 +236,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
+        WebView.setWebContentsDebuggingEnabled(true)
         codeView.settings.javaScriptEnabled = true
         codeView.loadUrl(INDEX_FILE)
         codeView.addJavascriptInterface(this, "Android")
@@ -313,6 +315,11 @@ class MainActivity : AppCompatActivity() {
         val list = codePlayDB.getSnippetDao().getAllSnippets()
         list?.let { return gson.toJson(it) }
         return ""
+    }
+
+    @JavascriptInterface
+    fun deleteSnippets() {
+        codePlayDB.getSnippetDao().nuke()
     }
 
 

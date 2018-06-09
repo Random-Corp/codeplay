@@ -16,4 +16,7 @@ abstract class SnippetDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveSnippet(snippet: Snippet): Long
+
+    @Query("Delete From Snippet")
+    abstract fun nuke()
 }
