@@ -182,7 +182,10 @@ class MainActivity : AppCompatActivity() {
 
         EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
             override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
-                processImageFromMSFTAzure(imageFile!!)
+
+//                val inputStream = FileInputStream(imageFile)
+                val byteArray = IOUtils.toByteArray(imageFile)
+                processImageFromMSFTAzure(byteArray)
 
 //                val mImageUri = imageFile?.pa
 ////                    val decoder = BitmapRegionDecoder.newInstance(mImageUri.toString(), false)
@@ -234,13 +237,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun processImageFromMSFTAzure(file: File) {
+    private fun processImageFromMSFTAzure(data: ByteArray) {
         //pass it like this
 
-        var requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+//        var requestFile = RequestBody.create(MediaType.parse("image/*"), file);
 
         // MultipartBody.Part is used to send also the actual file name
-        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+//        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 //        var imageBody = RequestBody.create(MediaType.parse("image"), file);
 //        val `in` = FileInputStream(File(file.getPath()))
 //        val buf: ByteArray
@@ -248,7 +251,8 @@ class MainActivity : AppCompatActivity() {
 //        while (`in`.read(buf) !== -1);
 //        val requestBody = RequestBody
 //                .create(MediaType.parse("application/octet-stream"), buf)
-
+        val requestBody = RequestBody
+                .create(MediaType.parse("application/octet-stream"), data)
 
 
 
@@ -259,7 +263,7 @@ class MainActivity : AppCompatActivity() {
 
         var networkService = retrofit.create(NetworkService::class.java)
 
-        val postImage = networkService.azurePostImage(body)
+        val postImage = networkService.azurePostImage(requestBody)
 //        val response = postImage.execute()
         postImage.enqueue(object : Callback<Response<ResponseBody>> {
             override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
