@@ -7,8 +7,5 @@ import android.arch.persistence.room.PrimaryKey
  * Created by root on 9/6/18.
  */
 @Entity
-data class Snippet(var snippetName: String,
-                   var snippetCode: String) {
-    @PrimaryKey(autoGenerate = true)
-    var snippetId: Int = 0
-}
+data class Snippet(@PrimaryKey var snippetName: String,
+                   var snippetCode: String)
