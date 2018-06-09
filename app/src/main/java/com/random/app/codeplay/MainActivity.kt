@@ -68,8 +68,6 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_WRITE_REQUEST = 1
     private val RC_CHOOSE_PHOTO = 1
     private val RC_TAKE_PHOTO = 2
-    private lateinit var fabAddGallery: FloatingActionButton
-    private lateinit var fabAddCamera: FloatingActionButton
     private val INDEX_FILE = "file:///android_asset/index.html"
 
     lateinit var handler:Handler
@@ -143,33 +141,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initFam() {
         fbAdd.setOnClickListener { EasyImage.openChooserWithDocuments(this, "Choose from", PICK_IMAGE_MULTIPLE) }
-//        famAdd.setOnFloatingActionsMenuUpdateListener(object : FloatingActionsMenu.OnFloatingActionsMenuUpdateListener {
-//            override fun onMenuExpanded() {
-//                rlFamBg.visibility = View.VISIBLE
-//            }
-//
-//            override fun onMenuCollapsed() {
-//                rlFamBg.visibility = View.GONE
-//            }
-//        })
-//
-//
-//        fabAddGallery = com.getbase.floatingactionbutton.FloatingActionButton(this)
-//        fabAddGallery.title = "Gallery"
-//        fabAddGallery.setIcon(R.drawable.ic_collections_black_24dp)
-//        fabAddGallery.colorNormal = ContextCompat.getColor(this, R.color.colorAccent)
-//        fabAddGallery.setOnClickListener { takePictureFromGallery() }
-//        fabAddGallery.size = com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI
-//
-//        fabAddCamera = com.getbase.floatingactionbutton.FloatingActionButton(this)
-//        fabAddCamera.title = "Camera"
-//        fabAddCamera.setIcon(R.drawable.ic_photo_camera_black_24dp)
-//        fabAddCamera.colorNormal = ContextCompat.getColor(this, R.color.colorAccent)
-//        fabAddCamera.setOnClickListener{ }
-//        fabAddCamera.size = com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI
-//
-//        famAdd.addButton(fabAddGallery)
-//        famAdd.addButton(fabAddCamera)
+
     }
 
     private fun takeFromCamera() {
@@ -205,14 +177,7 @@ class MainActivity : AppCompatActivity() {
                 val byteArray = IOUtils.toByteArray(imageFile)
                 processImageFromMSFTAzure(imageFile!!)
 
-//                val mImageUri = imageFile?.pa
-////                    val decoder = BitmapRegionDecoder.newInstance(mImageUri.toString(), false)
-////                    val region = decoder.decodeRegion(Rect(10, 10, 50, 50), null)
-//                val options = BitmapFactory.Options()
-//                options.inPreferredConfig = Bitmap.Config.ARGB_8888
-//                val bitmap = BitmapFactory.decodeStream(FileInputStream(imageFile),null,options)
-////                    val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mImageUri)
-//                    processBitmap(bitmap)
+
             }
 
         })
@@ -257,70 +222,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun processImageFromMSFTAzure(imageFile:File) {
-        //pass it like this
 
-//        var requestFile = RequestBody.create(MediaType.parse("image/*"), file);
 
-        // MultipartBody.Part is used to send also the actual file name
-//        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-//        var imageBody = RequestBody.create(MediaType.parse("image"), file);
-//        val `in` = FileInputStream(File(file.getPath()))
-//        val buf: ByteArray
-//        buf = ByteArray(`in`.available())
-//        while (`in`.read(buf) !== -1);
-//        val requestBody = RequestBody
-//                .create(MediaType.parse("application/octet-stream"), buf)
-//        val requestBody = RequestBody
-//                .create(MediaType.parse("application/octet-stream"), data)
-//
-//
-//
-//        val retrofit = Retrofit.Builder()
-//                .baseUrl("https://westcentralus.api.cognitive.microsoft.com")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build()
-//
-//        var networkService = retrofit.create(NetworkService::class.java)
-//
-//        val postImage = networkService.azurePostImage(requestBody)
-////        val response = postImage.execute()
-//        postImage.enqueue(object : Callback<Response<ResponseBody>> {
-//            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
-//            }
-//
-//            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-//                if (response?.code() == 202) {
-//                    Handler().postDelayed({
-//
-//                        val getImageTextDetails = networkService.azureGetImageText(response.headers().get("Operation-Location"))
-//                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>> {
-//                            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
-//
-//                            }
-//
-//                            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-//                                Log.d("result", "")
-//                            }
-//
-//                        })
-//                    }, 10000)
-//                }
-//            }
-//
-//        })
+        val client  = OkHttpClient()
 
-        val client : OkHttpClient = OkHttpClient()
 
-        val file = imageFile
-        val MEDIA_TYPE_JPEG : MediaType? = MediaType.parse("image/jpeg")
-        val requestBody : RequestBody = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-
-                .addPart(Headers.of("Content-Disposition", "form-data; name=\"image\""),
-                        RequestBody.create(MEDIA_TYPE_JPEG, file))
-//                .addFormDataPart("data",null, RequestBody.create(MEDIA_TYPE_JPEG, file))
-                .build()
-        var request : Request = Request.Builder()
+        val request : Request = Request.Builder()
                 .url("https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten")
                 .header("Content-Type", "application/octet-stream")
                 .header("Ocp-Apim-Subscription-Key", "***REMOVED***")
