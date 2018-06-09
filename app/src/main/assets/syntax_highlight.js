@@ -2,7 +2,12 @@
 // codeText = code.textAnnotations[0].description;
 // skewer.log(codeText);
 
+const replaceBrace = (text) => {
+    return text.replace(/\([ ]*/,"(").replace(/\)[ ]*/,")");
+};
+
 const loadCode = (codeText) => {
+    codeText = replaceBrace(codeText);
     block = document.getElementById("code");
     block.textContent = codeText;
     refreshHighlight();
