@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabAddCamera: FloatingActionButton
     private val INDEX_FILE = "file:///android_asset/index.html"
 
+    lateinit var handler:Handler
+
     var PICK_IMAGE_MULTIPLE = 1
 
     lateinit var codePlayDB:CodePlayDB
@@ -85,6 +87,8 @@ class MainActivity : AppCompatActivity() {
                 CodePlayDB::class.java, "codeplaydb")
         .fallbackToDestructiveMigration().build()
         initWebView()
+
+//        handler = Handler()
     }
 
     private fun setupPermissions() {
@@ -333,6 +337,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onResponse(call: okhttp3.Call?, response: okhttp3.Response?) {
+                        runOnUiThread{
+                            Toast.makeText(this@MainActivity,"Processing",Toast.LENGTH_SHORT).show()
+                        }
+
                         if(response?.code() == 202)
                         {
                             Handler(Looper.getMainLooper()).postDelayed({
@@ -361,11 +369,16 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 Log.d("json",code)
 
+                                runOnUiThread{
+                                    displayCode(code)
+                                }
+
+
 
                             }
 
                         })
-                    }, 10000)
+                    }, 5000)
                         }
                     }
 
