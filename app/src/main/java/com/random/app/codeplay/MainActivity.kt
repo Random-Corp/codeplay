@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import com.google.android.gms.tasks.OnFailureListener
@@ -30,11 +31,22 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.google.gson.Gson
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
 import java.nio.file.Files.size
+import java.util.*
 import kotlin.math.log
 
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Rect
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
@@ -172,16 +184,17 @@ class MainActivity : AppCompatActivity() {
 
         EasyImage.handleActivityResult(requestCode,resultCode,data,this,object :DefaultCallback (){
             override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
+                processImageFromMSFTAzure(imageFile!!)
+
 //                val mImageUri = imageFile?.pa
 ////                    val decoder = BitmapRegionDecoder.newInstance(mImageUri.toString(), false)
 ////                    val region = decoder.decodeRegion(Rect(10, 10, 50, 50), null)
-                val options = BitmapFactory.Options()
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888
-                val bitmap = BitmapFactory.decodeStream(FileInputStream(imageFile),null,options)
-//                    val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mImageUri)
-                    processBitmap(bitmap)
+//                val options = BitmapFactory.Options()
+//                options.inPreferredConfig = Bitmap.Config.ARGB_8888
+//                val bitmap = BitmapFactory.decodeStream(FileInputStream(imageFile),null,options)
+////                    val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mImageUri)
+//                    processBitmap(bitmap)
             }
-
 
         })
 
@@ -221,6 +234,59 @@ class MainActivity : AppCompatActivity() {
     private fun displayCode(code: String) {
         val url = "javascript:loadCode('$code');"
         codeView.loadUrl(url)
+
+    }
+
+    private fun processImageFromMSFTAzure(file:File)
+    {
+        //pass it like this
+
+        var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+        // MultipartBody.Part is used to send also the actual file name
+        var body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+//        var imageBody = RequestBody.create(MediaType.parse("image"), file);
+//        val `in` = FileInputStream(File(file.getPath()))
+//        val buf: ByteArray
+//        buf = ByteArray(`in`.available())
+//        while (`in`.read(buf) !== -1);
+//        val requestBody = RequestBody
+//                .create(MediaType.parse("application/octet-stream"), buf)
+
+        val retrofit = Retrofit.Builder()
+                .baseUrl("https://westcentralus.api.cognitive.microsoft.com")
+                                .addConverterFactory(GsonConverterFactory.create())
+                                .build()
+
+        var networkService = retrofit.create(NetworkService::class.java)
+
+        val postImage = networkService.azurePostImage(body)
+//        val response = postImage.execute()
+        postImage.enqueue(object : Callback<Response<ResponseBody>> {
+            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
+            }
+
+            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
+                if(response?.code() == 202) {
+                    Handler().postDelayed({
+
+                        val getImageTextDetails = networkService.azureGetImageText(response.headers().get("Operation-Location"))
+                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>>{
+                            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
+
+                            }
+
+                            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
+                                Log.d("result","")
+                            }
+
+                        })
+                    },10000)
+                }
+            }
+
+        })
+
 
     }
 
