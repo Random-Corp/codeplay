@@ -7,9 +7,9 @@ const replaceBrace = (text) => {
 };
 
 const loadCode = (codeText) => {
-    codeText = replaceBrace(codeText);
+    let newCode = replaceBrace(codeText);
     block = document.getElementById("code");
-    block.textContent = codeText;
+    block.textContent = newCode;
     refreshHighlight();
 };
 
