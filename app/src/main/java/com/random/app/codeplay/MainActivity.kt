@@ -49,6 +49,7 @@ import android.graphics.Rect
 import android.os.Looper
 
 import android.webkit.JavascriptInterface
+import android.webkit.WebView
 
 import com.google.android.gms.common.util.IOUtils
 import com.google.gson.GsonBuilder

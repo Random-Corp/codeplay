@@ -3,13 +3,15 @@
 // skewer.log(codeText);
 
 const replaceBrace = (text) => {
-    return text.replace(/\([ ]*/,"(").replace(/\)[ ]*/,")");
+    return text.replace(/\([ ]*/g,"(").replace(/[ ]*\)/g,")");
 };
 
 const loadCode = (codeText) => {
     let newCode = replaceBrace(codeText);
-    block = document.getElementById("code");
-    block.textContent = newCode;
+    console.log(newCode);
+    // block = document.getElementById("code");
+    $('#code').text(newCode);
+    //block.textContent = newCode;
     refreshHighlight();
 };
 
@@ -97,7 +99,8 @@ const loadData = () => {
             }
         });
         console.log(JSON.stringify(features));
-        $('#code').text(features.join('\n'));
+        loadCode(features.join('\n'));
+        // $('#code').text(features.join('\n'));
     });
     console.log(JSON.stringify(data));
     $.each(data, function(hash,name){
