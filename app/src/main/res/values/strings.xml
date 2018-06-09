@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CodePlay</string>
+    <string name="subscription_key">8644515d7264414fb59fd5c717ee81ed</string>
+    <string name="subscription_apiroot">https://westcentralus.api.cognitive.microsoft.com/vision/v2.0</string>
 </resources>
