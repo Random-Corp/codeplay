@@ -23,6 +23,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.text.FirebaseVisionText
 import java.nio.file.Files.size
 
 
@@ -170,9 +175,9 @@ class MainActivity : AppCompatActivity() {
                 if (data.data != null) {
 
                     val mImageUri = data.data
+                    Log.d("Result"," uri :$mImageUri")
                     val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mImageUri)
                     processBitmap(bitmap)
-                    Log.d("Result"," uri :$mImageUri")
 
                     // Get the cursor
                     val cursor = contentResolver.query(mImageUri,
@@ -206,6 +211,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun processBitmap(bitmap: Bitmap) {
         Log.d("Result"," uri :${bitmap.height}")
+        val visionImage = FirebaseVisionImage.fromBitmap(bitmap)
+
+        val textDetector = FirebaseVision.getInstance()
+                .visionTextDetector
+
+        val result = textDetector.detectInImage(visionImage)
+                .addOnSuccessListener {
+                    for (block in it.getBlocks()) {
+                        val boundingBox = block.getBoundingBox()
+                        val cornerPoints = block.getCornerPoints()
+                        val text = block.getText()
+
+                        for (line in block.getLines()) {
+                            // ...
+                            for (element in line.getElements()) {
+                                // ...
+                            }
+                        }
+                    }  }
+                .addOnFailureListener { }
     }
 
 
