@@ -28,13 +28,9 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
+import com.google.gson.Gson
 import java.nio.file.Files.size
-
-
-
-
-
-
+import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity() {
@@ -218,18 +214,12 @@ class MainActivity : AppCompatActivity() {
 
         val result = textDetector.detectInImage(visionImage)
                 .addOnSuccessListener {
+                    var fullString = ""
                     for (block in it.getBlocks()) {
-                        val boundingBox = block.getBoundingBox()
-                        val cornerPoints = block.getCornerPoints()
-                        val text = block.getText()
-
-                        for (line in block.getLines()) {
-                            // ...
-                            for (element in line.getElements()) {
-                                // ...
-                            }
-                        }
-                    }  }
+                        fullString = fullString + block.text + " \n "
+                    }
+                    Log.d("full",fullString)
+                }
                 .addOnFailureListener { }
     }
 
