@@ -18,6 +18,8 @@ import android.os.Build
 import android.widget.Toast
 import java.nio.file.Files.size
 import android.app.Activity
+import android.arch.persistence.room.Room
+import android.arch.persistence.room.RoomDatabase
 import android.content.ClipData
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -43,7 +45,11 @@ import kotlin.math.log
 
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Rect
+
 import android.os.Looper
+
+import android.webkit.JavascriptInterface
+
 import com.google.android.gms.common.util.IOUtils
 import com.google.gson.GsonBuilder
 import okhttp3.*
@@ -68,11 +74,16 @@ class MainActivity : AppCompatActivity() {
 
     var PICK_IMAGE_MULTIPLE = 1
 
+    lateinit var codePlayDB:CodePlayDB
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupPermissions()
         initFam()
+        codePlayDB = Room.databaseBuilder(this,
+                CodePlayDB::class.java, "codeplaydb")
+        .fallbackToDestructiveMigration().build()
         initWebView()
     }
 
@@ -232,6 +243,7 @@ class MainActivity : AppCompatActivity() {
     private fun initWebView() {
         codeView.settings.javaScriptEnabled = true
         codeView.loadUrl(INDEX_FILE)
+        codeView.addJavascriptInterface(this, "Android")
     }
 
     private fun displayCode(code: String) {
@@ -366,6 +378,19 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    }
+
+    @JavascriptInterface
+    fun saveSnippet(name:String, snippet:String) {
+        codePlayDB.getSnippetDao().saveSnippet(Snippet(name, snippet))
+    }
+
+    @JavascriptInterface
+    fun loadSnippet():String {
+        val gson = Gson()
+        val list = codePlayDB.getSnippetDao().getAllSnippets()
+        list?.let { return gson.toJson(it) }
+        return ""
     }
 
 
