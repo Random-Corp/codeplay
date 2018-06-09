@@ -14,12 +14,13 @@ const refreshHighlight = () => {
 };
 
 const updateResult = (result) => {
-    $("#result").show();
-    $("#result").text(result);
+    if (jQuery.isEmptyObject(result)) {
+        $("#result").show();
+        $("#result").text(result);
+    }
 };
 
-const runCode = () => {
-    code = $("#code").text().trim();
+const runCode = (code) => {
     if (code) {
         $("#errorMsg").hide();
         execScheme(code, updateResult);

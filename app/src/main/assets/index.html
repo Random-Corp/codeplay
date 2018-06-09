@@ -48,7 +48,7 @@
         <div class="col-lg-3 center-block" style="display: table;">
           <form class="form-inline">
             <div class="form-group">
-              <input type="button"class="btn btn-default" value="Run" onclick="runCode();" />
+              <input type="button"class="btn btn-default" value="Run" onclick="runEditorCode();" />
               <input type="button"class="btn btn-default" value="Edit" id="editButton" onclick="editCode();" />
               <input type="button"class="btn btn-default" value="Done" id="doneButton" onclick="updateCode();" />
               <input type="button"class="btn btn-default" value="Load" id="loadButton" onclick="loadCode();" />
@@ -61,6 +61,13 @@
       </form>
 
 
+      <div class="panel-group">
+        <div class="panel panel-default">
+          <input class="form-control" type="text" placeholder="REPL" id="replBox">
+        </div>
+      </div>
+
+
       <div class="alert alert-danger" id="errorMsg">
       </div>
 
@@ -70,11 +77,27 @@
     </div>
 
     <script>
+
       $(document).ready(() => {
           hljs.initHighlightingOnLoad();
           hideEdit();
           $("#errorMsg").hide();
       });
+
+
+      const runEditorCode = () => {
+          code = $("#code").text().trim();
+          runCode(code);
+      }
+
+      $('#replBox').on("keypress", (e) => {
+          if (e.keyCode == 13) {
+              let code = $("#replBox").val();
+              console.log(code);
+              runCode(code);
+          }
+      });
+
     </script>
   </body>
 </html>
