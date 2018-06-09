@@ -31,7 +31,6 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.google.gson.Gson
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,14 +43,18 @@ import kotlin.math.log
 
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Rect
+import android.os.Looper
 import com.google.android.gms.common.util.IOUtils
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import com.google.gson.GsonBuilder
+import okhttp3.*
+import org.json.JSONObject
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
@@ -185,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 
 //                val inputStream = FileInputStream(imageFile)
                 val byteArray = IOUtils.toByteArray(imageFile)
-                processImageFromMSFTAzure(byteArray)
+                processImageFromMSFTAzure(imageFile!!)
 
 //                val mImageUri = imageFile?.pa
 ////                    val decoder = BitmapRegionDecoder.newInstance(mImageUri.toString(), false)
@@ -237,7 +240,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun processImageFromMSFTAzure(data: ByteArray) {
+    private fun processImageFromMSFTAzure(imageFile:File) {
         //pass it like this
 
 //        var requestFile = RequestBody.create(MediaType.parse("image/*"), file);
@@ -251,47 +254,120 @@ class MainActivity : AppCompatActivity() {
 //        while (`in`.read(buf) !== -1);
 //        val requestBody = RequestBody
 //                .create(MediaType.parse("application/octet-stream"), buf)
-        val requestBody = RequestBody
-                .create(MediaType.parse("application/octet-stream"), data)
+//        val requestBody = RequestBody
+//                .create(MediaType.parse("application/octet-stream"), data)
+//
+//
+//
+//        val retrofit = Retrofit.Builder()
+//                .baseUrl("https://westcentralus.api.cognitive.microsoft.com")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+//
+//        var networkService = retrofit.create(NetworkService::class.java)
+//
+//        val postImage = networkService.azurePostImage(requestBody)
+////        val response = postImage.execute()
+//        postImage.enqueue(object : Callback<Response<ResponseBody>> {
+//            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
+//            }
+//
+//            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
+//                if (response?.code() == 202) {
+//                    Handler().postDelayed({
+//
+//                        val getImageTextDetails = networkService.azureGetImageText(response.headers().get("Operation-Location"))
+//                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>> {
+//                            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
+//
+//                            }
+//
+//                            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
+//                                Log.d("result", "")
+//                            }
+//
+//                        })
+//                    }, 10000)
+//                }
+//            }
+//
+//        })
 
+        val client : OkHttpClient = OkHttpClient()
 
+        val file = imageFile
+        val MEDIA_TYPE_JPEG : MediaType? = MediaType.parse("image/jpeg")
+        val requestBody : RequestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
 
-        val retrofit = Retrofit.Builder()
-                .baseUrl("https://westcentralus.api.cognitive.microsoft.com")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addPart(Headers.of("Content-Disposition", "form-data; name=\"image\""),
+                        RequestBody.create(MEDIA_TYPE_JPEG, file))
+//                .addFormDataPart("data",null, RequestBody.create(MEDIA_TYPE_JPEG, file))
+                .build()
+        var request : Request = Request.Builder()
+                .url("https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten")
+                .header("Content-Type", "application/octet-stream")
+                .header("Ocp-Apim-Subscription-Key", "***REMOVED***")
+                .post(RequestBody.create(null,IOUtils.toByteArray(imageFile)))
                 .build()
 
-        var networkService = retrofit.create(NetworkService::class.java)
 
-        val postImage = networkService.azurePostImage(requestBody)
-//        val response = postImage.execute()
-        postImage.enqueue(object : Callback<Response<ResponseBody>> {
-            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
-            }
 
-            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-                if (response?.code() == 202) {
-                    Handler().postDelayed({
 
-                        val getImageTextDetails = networkService.azureGetImageText(response.headers().get("Operation-Location"))
-                        getImageTextDetails.enqueue(object : Callback<Response<ResponseBody>> {
-                            override fun onFailure(call: Call<Response<ResponseBody>>?, t: Throwable?) {
+            try {
+                client.newCall(request).enqueue(object :  okhttp3.Callback {
+                    override fun onFailure(call: okhttp3.Call?, e: IOException?) {
+
+                    }
+
+                    override fun onResponse(call: okhttp3.Call?, response: okhttp3.Response?) {
+                        if(response?.code() == 202)
+                        {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                var request = Request.Builder()
+                                        .url(response.headers().get("Operation-Location"))
+                                        .header("Content-Type", "application/json")
+                                        .header("Ocp-Apim-Subscription-Key", "***REMOVED***")
+                                        .build()
+
+                        client.newCall(request).enqueue(object : okhttp3.Callback {
+                            override fun onFailure(call: okhttp3.Call?, e: IOException?) {
 
                             }
+                            override fun onResponse(call:okhttp3.Call?, response: okhttp3.Response?) {
+                                Log.d("json",response?.body().toString())
+                                var responseBody = response?.body()
+                                var jsonObject = JSONObject(responseBody?.string())
+                                var gson = GsonBuilder().setPrettyPrinting().create();
+	                            var json = gson.toJson(jsonObject);
 
-                            override fun onResponse(call: Call<Response<ResponseBody>>?, response: Response<Response<ResponseBody>>?) {
-                                Log.d("result", "")
+                                var recognitionResultObj = jsonObject.getJSONObject("recognitionResult")
+                                var linesArray = recognitionResultObj.getJSONArray("lines")
+                                var code: String = ""
+                                for (i in 0..linesArray.length()-1) {
+                                    code += ((linesArray[i] as JSONObject)["text"] as String) + "\n"
+                                }
+                                Log.d("json",code)
+
+
                             }
 
                         })
                     }, 10000)
-                }
+                        }
+                    }
+
+                })
+
+            }catch (e: IOException){
+                Log.d("fsdsdsds", e.message)
             }
 
-        })
+
 
 
     }
 
 
 }
+
