@@ -16,7 +16,7 @@ const loadCode = (codeText) => {
 };
 
 const evalCode = (code) => {
-    let newCode = replaceBrace(codeText);
+    let newCode = replaceBrace(code);
     runCode(newCode);
 }
 
@@ -104,8 +104,8 @@ const loadData = () => {
             }
         });
         console.log(JSON.stringify(features));
-        // loadCode(features.join('\n'));
-        evalCode(features.join('\n'));
+         loadCode(features.join('\n'));
+//        evalCode(features.join('\n'));
         // $('#code').text(features.join('\n'));
     });
     console.log(JSON.stringify(data));
