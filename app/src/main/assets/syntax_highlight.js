@@ -15,6 +15,11 @@ const loadCode = (codeText) => {
     refreshHighlight();
 };
 
+const evalCode = (code) => {
+    let newCode = replaceBrace(codeText);
+    runCode(newCode);
+}
+
 const refreshHighlight = () => {
     block = document.getElementById("code");
     hljs.highlightBlock(block);
@@ -80,7 +85,7 @@ const loadData = () => {
     var data = JSON.parse(snippets);
     var options = '';
     $('#loadBody').html('');
-    $('#LoadModalLoadButton').on("click", ()=>{ 
+    $('#LoadModalLoadButton').on("click", ()=>{
         console.log("----------click called----------")
         var features = [];
         $('#loadBody input[type="checkbox"]:checked').each(function() {
@@ -92,14 +97,15 @@ const loadData = () => {
                     temp = d.snippetCode;
                 }
             });
-            
+
             console.log(temp);
             if (temp != '') {
                 features.push(temp);
             }
         });
         console.log(JSON.stringify(features));
-        loadCode(features.join('\n'));
+        // loadCode(features.join('\n'));
+        evalCode(features.join('\n'));
         // $('#code').text(features.join('\n'));
     });
     console.log(JSON.stringify(data));
