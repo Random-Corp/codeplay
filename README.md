@@ -11,8 +11,8 @@ So that we can run, debug & validate the code effectively. For demonstration we 
 
 
 ## Features
-1. Works for handwritten code with variable accuracy
-   For OCR we are using [Microsoft Azure service](https://azure.microsoft.com/en-in/blog/how-to-leverage-ocr-to-full-text-search-your-images-within-azure-search/)
+1. Works for handwritten code with variable accuracy.
+   OCR is done using [Microsoft Azure service](https://azure.microsoft.com/en-in/blog/how-to-leverage-ocr-to-full-text-search-your-images-within-azure-search/)
 2. Basic REPL features for scheme using [biwascheme](https://github.com/biwascheme/biwascheme)
    * Command execution window
    * Basic code editor
@@ -20,6 +20,7 @@ So that we can run, debug & validate the code effectively. For demonstration we 
    * Partial support for Picture Language described in [sicp](http://sarabander.github.io/sicp/html/2_002e2.xhtml#g_t2_002e2_002e4)
 3. Code can be saved and loaded
 
+If you want to try it out, please set the azure API keys in the code
 
 ## TODO
 * Support for other languages
