@@ -19,11 +19,11 @@ public interface NetworkService
 {
     @POST("/vision/v2.0/recognizeText?mode=Handwritten")
     @Multipart
-    @Headers({"Content-Type:multipart/form-data","Ocp-Apim-Subscription-Key:***REMOVED***"})
+    @Headers({"Content-Type:multipart/form-data","Ocp-Apim-Subscription-Key:**YOUR_KEY**"})
     Call<Response<ResponseBody>> azurePostImage(@Body RequestBody requestBody);
 
 
     @GET
-    @Headers({"Content-Type:application/json","Ocp-Apim-Subscription-Key:***REMOVED***"})
+    @Headers({"Content-Type:application/json","Ocp-Apim-Subscription-Key:**YOUR_KEY**"})
     Call<Response<ResponseBody>> azureGetImageText(@Url String url);
 }

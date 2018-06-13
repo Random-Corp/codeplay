@@ -238,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         val request : Request = Request.Builder()
                 .url("https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten")
                 .header("Content-Type", "application/octet-stream")
-                .header("Ocp-Apim-Subscription-Key", "***REMOVED***")
+                .header("Ocp-Apim-Subscription-Key", "**YOUR_KEY**")
                 .post(RequestBody.create(null,IOUtils.toByteArray(imageFile)))
                 .build()
 
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity() {
                                 var request = Request.Builder()
                                         .url(response.headers().get("Operation-Location"))
                                         .header("Content-Type", "application/json")
-                                        .header("Ocp-Apim-Subscription-Key", "***REMOVED***")
+                                        .header("Ocp-Apim-Subscription-Key", "**YOUR_KEY**")
                                         .build()
 
                         client.newCall(request).enqueue(object : okhttp3.Callback {
